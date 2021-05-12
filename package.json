@@ -1,0 +1,32 @@
+{
+    "name": "pylearn",
+    "version": "1.0.0",
+    "description": "Front end plugins for pylearn",
+    "main": "index.js",
+    "scripts": {
+        "update": "ncu -u && npm i"
+    },
+    "author": "lab409",
+    "license": "GPL-3.0-or-later",
+    "dependencies": {
+        "@fortawesome/fontawesome-free": "^5.15.3",
+        "@popperjs/core": "^2.9.2",
+        "bootstrap": "^5.0.0",
+        "brython": "^3.9.2",
+        "d3": "^6.7.0",
+        "datatables.net": "^1.10.24",
+        "dropzone": "^5.9.2",
+        "echarts": "^5.1.1",
+        "jquery": "^3.6.0",
+        "marked": "^2.0.3",
+        "monaco-editor": "^0.23.0",
+        "prismjs": "^1.23.0",
+        "qrcode": "^1.4.4",
+        "skulpt": "^1.2.0",
+        "sweetalert": "^2.1.2"
+    },
+    "devDependencies": {
+        "eslint": "^7.26.0",
+        "npm-check-updates": "^11.5.11"
+    }
+}
