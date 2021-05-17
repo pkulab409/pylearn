@@ -5,7 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery.terminal@2/css/jquery.terminal.min.css">
+    <link rel="stylesheet" href="../node_modules/jquery.terminal/css/jquery.terminal.min.css">
+    <link rel="stylesheet" href="../node_modules/golden-layout/dist/css/goldenlayout-base.css">
+    <link rel="stylesheet" href="../node_modules/golden-layout/dist/css/themes/goldenlayout-dark-theme.css">
     <style>
         #container {
             width: 100%;
@@ -15,6 +17,7 @@
             left: 0;
             display: grid;
             grid-template-columns: 1fr 1fr;
+            display: none;
         }
         #run {
             position: fixed;
@@ -31,14 +34,17 @@
 </head>
 <body>
 <div id="container">
-<div id="editor"></div>
-<div id="terminal"></div>
+    <div id="editor"></div>
+    <div id="terminal"></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery.terminal@2/js/jquery.terminal.min.js"></script>
+<script src="../node_modules/jquery/dist/jquery.slim.min.js"></script>
+<script src="../node_modules/jquery.terminal/js/jquery.terminal.min.js"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.17.0/full/pyodide.js"></script>
 <script>
+    const terminal = $('<div>');
+    window.terminalElement = terminal[0];
+
     function sleep(s) {
         return new Promise(resolve => setTimeout(resolve, s));
     }
@@ -106,7 +112,7 @@
         }
         window.interpreter = interpreter;
 
-        let term = $('#terminal').terminal(
+        let term = terminal.terminal(
             interpreter,
             {
                 greetings: pyconsole.banner(),
@@ -138,9 +144,10 @@
 </script>
 <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
 <script>
+    const editorElement = document.createElement('div');
     require.config({ paths: { 'vs': '../node_modules/monaco-editor/min/vs' } });
     require(['vs/editor/editor.main'], function() {
-        window.editor = monaco.editor.create(document.getElementById('editor'), {
+        window.editor = monaco.editor.create(editorElement, {
             value: [
                 'def hello():',
                 '    print("hello, world!")',
@@ -148,7 +155,8 @@
                 'hello()'
             ].join('\n'),
             language: 'python',
-            fontSize: 16
+            fontSize: 16,
+            automaticLayout: true
         });
     });
     window.addEventListener('keydown', event => {
@@ -164,5 +172,6 @@ document.getElementById('run').addEventListener('click', () => {
     if (result) term.echo(result);
 });
 </script>
+<script src="js/editor.js"></script>
 </body>
 </html>

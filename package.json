@@ -4,6 +4,7 @@
     "description": "Front end plugins for pylearn",
     "main": "index.js",
     "scripts": {
+        "build": "rollup src/js/editor.js --format iife --file public/js/editor.js",
         "update": "ncu -u && npm i"
     },
     "author": "lab409",
@@ -17,13 +18,17 @@
         "datatables.net": "^1.10.24",
         "dropzone": "^5.9.2",
         "echarts": "^5.1.1",
+        "golden-layout": "^2.2.0",
         "jquery": "^3.6.0",
+        "jquery.terminal": "^2.23.2",
         "marked": "^2.0.3",
         "monaco-editor": "^0.23.0",
         "prismjs": "^1.23.0",
         "qrcode": "^1.4.4",
+        "rollup": "^2.48.0",
         "skulpt": "^1.2.0",
-        "sweetalert": "^2.1.2"
+        "sweetalert": "^2.1.2",
+        "xterm": "^4.12.0"
     },
     "devDependencies": {
         "eslint": "^7.26.0",
