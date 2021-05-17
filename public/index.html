@@ -27,8 +27,14 @@
             background-color: green;
             color: white;
         }
-        #terminal {
+        .terminal {
             --size: 1.5;
+        }
+        .lm_content > div {
+            height: 100%;
+        }
+        .question {
+            color: white;
         }
     </style>
 </head>
@@ -38,12 +44,14 @@
     <div id="terminal"></div>
 </div>
 
+<script src="../node_modules/marked/marked.min.js"></script>
 <script src="../node_modules/jquery/dist/jquery.slim.min.js"></script>
 <script src="../node_modules/jquery.terminal/js/jquery.terminal.min.js"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.17.0/full/pyodide.js"></script>
 <script>
     const terminal = $('<div>');
-    window.terminalElement = terminal[0];
+    const terminalElement = terminal[0];
+    terminalElement.classList.add('terminal');
 
     function sleep(s) {
         return new Promise(resolve => setTimeout(resolve, s));
@@ -51,11 +59,17 @@
     async function main() {
         await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.17.0/full/' });
         let namespace = pyodide.globals.get("dict")();
+        await pyodide.loadPackage('micropip');
         pyodide.runPython(`
             import sys
             import js
             from pyodide import console
             import __main__
+            import micropip
+
+            micropip.install(
+                '/public/turtle-0.0.1-py3-none-any.whl'
+            )
 
             class PyConsole(console._InteractiveConsole):
                 def __init__(self):
@@ -171,6 +185,12 @@ document.getElementById('run').addEventListener('click', () => {
     const result = interpreter(code);
     if (result) term.echo(result);
 });
+</script>
+<script>
+const questionElement = document.createElement('div');
+questionElement.classList.add('question');
+// Warning: Marked does not sanitize the output HTML
+questionElement.innerHTML = marked('# Marked in the browser\n\nRendered by **marked**.');
 </script>
 <script src="js/editor.js"></script>
 </body>

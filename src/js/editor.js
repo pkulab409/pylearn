@@ -1,8 +1,7 @@
 import { GoldenLayout } from '../../node_modules/golden-layout/dist/esm/index.js';
 const config = {
     settings: {
-        showPopoutIcon: false,
-        showCloseIcon: false
+        showPopoutIcon: false
     },
     content: [{
         type: 'row',
@@ -33,14 +32,12 @@ const config = {
 };
 const myLayout = new GoldenLayout(config);
 myLayout.registerComponent('题目', function(container, componentState) {
-    console.log(container.getElement());
+    container.getElement().appendChild(questionElement);
 });
 myLayout.registerComponent('终端', function(container, componentState) {
-    console.log(container.getElement());
     container.getElement().appendChild(terminalElement);
 });
 myLayout.registerComponent('编辑器', function(container, componentState) {
-    console.log(container.getElement());
     container.getElement().appendChild(editorElement);
 });
 myLayout.registerComponent('预览', function(container, componentState) {
