@@ -1,4 +1,5 @@
-import { GoldenLayout } from '../../node_modules/golden-layout/dist/esm/index.js';
+import { GoldenLayout } from 'golden-layout';
+
 const config = {
     settings: {
         showPopoutIcon: false
@@ -30,6 +31,7 @@ const config = {
         }]
     }]
 };
+
 const myLayout = new GoldenLayout(config);
 myLayout.registerComponent('题目', function(container, componentState) {
     container.getElement().appendChild(questionElement);

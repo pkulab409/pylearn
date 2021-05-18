@@ -4,7 +4,8 @@
     "description": "Front end plugins for pylearn",
     "main": "index.js",
     "scripts": {
-        "build": "rollup src/js/editor.js --format iife --file public/js/editor.js",
+        "build": "rollup -c rollup.config.js | terser > public/js/editor.js",
+        "build-dev": "rollup -c rollup.config.js -o public/js/editor.js -w",
         "update": "ncu -u && npm i"
     },
     "author": "lab409",
@@ -12,8 +13,8 @@
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.15.3",
         "@popperjs/core": "^2.9.2",
-        "bootstrap": "^5.0.0",
-        "brython": "^3.9.2",
+        "bootstrap": "^5.0.1",
+        "brython": "^3.9.3",
         "d3": "^6.7.0",
         "datatables.net": "^1.10.24",
         "dropzone": "^5.9.2",
@@ -22,16 +23,18 @@
         "jquery": "^3.6.0",
         "jquery.terminal": "^2.23.2",
         "marked": "^2.0.3",
-        "monaco-editor": "^0.23.0",
+        "monaco-editor": "^0.24.0",
         "prismjs": "^1.23.0",
         "qrcode": "^1.4.4",
-        "rollup": "^2.48.0",
         "skulpt": "^1.2.0",
         "sweetalert": "^2.1.2",
         "xterm": "^4.12.0"
     },
     "devDependencies": {
+        "@rollup/plugin-node-resolve": "^13.0.0",
         "eslint": "^7.26.0",
-        "npm-check-updates": "^11.5.11"
+        "npm-check-updates": "^11.5.13",
+        "rollup": "^2.48.0",
+        "terser": "^5.7.0"
     }
 }
