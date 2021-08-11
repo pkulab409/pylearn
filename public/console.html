@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../node_modules/xterm/css/xterm.css">
+    <style>
+        #container {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        #run {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            font-size: 2em;
+            background-color: green;
+            color: white;
+        }
+
+        #terminal {
+            --size: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div id="editor"></div>
+        <div id="terminal"></div>
+    </div>
+
+    <script src="../node_modules/xterm/lib/xterm.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.17.0/full/pyodide.js"></script>
+    <script>
+        function sleep(s) {
+            return new Promise(resolve => setTimeout(resolve, s));
+        }
+        async function main() {
+            await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.17.0/full/' });
+            let namespace = pyodide.globals.get("dict")();
+            pyodide.runPython(`
+            import sys
+            import js
+            from pyodide import console
+            import __main__
+
+            class PyConsole(console._InteractiveConsole):
+                def __init__(self):
+                    super().__init__(
+                        __main__.__dict__,
+                        persistent_stream_redirection=False,
+                    )
+
+                def banner(self):
+                    return f"Welcome to the Pyodide terminal emulator 🐍\\n{super().banner()}"
+
+
+            js.pyconsole = PyConsole()
+        `, namespace);
+            namespace.destroy();
+
+            let ps1 = '>>> ', ps2 = '... ';
+
+            async function lock() {
+                let resolve;
+                let ready = term.ready;
+                term.ready = new Promise(res => resolve = res);
+                await ready;
+                return resolve;
+            }
+
+            async function interpreter(command) {
+                for (const c of command.split('\n')) {
+                    let run_complete = pyconsole.run_complete;
+                    try {
+                        const incomplete = pyconsole.push(c);
+                        //term.set_prompt(incomplete ? ps2 : ps1);
+                        let r = await run_complete;
+                        if (pyodide.isPyProxy(r)) {
+                            r.destroy();
+                        }
+                    } catch (e) {
+                        if (e.name !== "PythonError") {
+                            term.write(e);
+                            throw e;
+                        }
+                    }
+                    run_complete.destroy();
+                }
+                /*
+                let unlock = await lock();
+                try {
+                    term.pause();
+                    // multiline should be splitted (useful when pasting)
+                } finally {
+                    term.resume();
+                    await sleep(10);
+                    unlock();
+                }
+                */
+            }
+            window.interpreter = interpreter;
+
+            window.term = new Terminal();
+            term.open(document.getElementById('terminal'));
+            term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ');
+
+            term.onKey(({ key, domEvent }) => {
+                const ev = domEvent;
+                const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
+
+                if (ev.keyCode === 13) {
+                    //const result = interpreter(term.);
+                    //if (result) term.write(result);
+                    term.write('\r\n' + ps1);
+                } else if (ev.keyCode === 8) {
+                    // Do not delete the prompt
+                    if (term._core.buffer.x > 4) {
+                        term.write('\b \b');
+                    }
+                } else if (printable) {
+                    term.write(key);
+                }
+            });
+
+            term.onPaste(function(data) {
+                term.write(data);
+            });
+
+            term.onData((data) => {
+                console.log(data);
+                //ptyProcess.write(data);
+            });
+            pyconsole.stdout_callback = s => term.write(s + '\r');
+
+            /*
+            let term = $('#terminal').terminal(
+                interpreter,
+                {
+                    greetings: pyconsole.banner(),
+                    prompt: ps1,
+                    completionEscape: false,
+                    completion: function(command, callback) {
+                        callback(pyconsole.complete(command).toJs()[0]);
+                    }
+                }
+            );
+            window.term = term;
+            pyconsole.stderr_callback = s => {
+                term.error(s.trimEnd());
+            }
+            term.ready = Promise.resolve();
+            pyodide._module.on_fatal = async (e) => {
+                term.error("Pyodide has suffered a fatal error. Please report this to the Pyodide maintainers.");
+                term.error("The cause of the fatal error was:");
+                term.error(e);
+                term.error("Look in the browser console for more details.");
+                await term.ready;
+                term.pause();
+                await sleep(15);
+                term.pause();
+            };*/
+        }
+        window.console_ready = main();
+    </script>
+    <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
+    <script>
+        require.config({ paths: { 'vs': '../node_modules/monaco-editor/min/vs' } });
+        require(['vs/editor/editor.main'], function() {
+            window.editor = monaco.editor.create(document.getElementById('editor'), {
+                value: [
+                    'def hello():',
+                    '    print("hello, world!")',
+                    '',
+                    'hello()'
+                ].join('\n'),
+                language: 'python',
+                fontSize: 16
+            });
+        });
+        window.addEventListener('keydown', event => {
+            //console.log(event, event.key);
+        });
+    </script>
+    <div id="run">Run</div>
+    <script>
+        document.getElementById('run').addEventListener('click', () => {
+            const code = editor.getValue();
+            //const result = pyodide.runPython(code);
+            const result = interpreter(code);
+            if (result) term.write(result);
+        });
+    </script>
+</body>
+
+</html>
